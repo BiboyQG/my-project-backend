@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSONWriter;
 
 public record RestBean<T>(int code, T data, String message) {
     public static <T> RestBean<T> success (T data) {
-        return new RestBean<T>(200, data, "Request successfully!");
+        return new RestBean<T>(200, data, "Request or logout successfully!");
     }
 
     public static <T> RestBean<T> success () {

@@ -1,5 +1,6 @@
 package com.example.config;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.entity.RestBean;
 import com.example.filter.JwtAuthorizeFilter;
 import com.example.utils.JwtUtils;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,12 +19,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Configuration
 public class SecurityConfiguration {
@@ -32,6 +33,9 @@ public class SecurityConfiguration {
 
     @Resource
     JwtAuthorizeFilter jwtAuthorizeFilter;
+
+    @Resource
+    StringRedisTemplate template;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -101,9 +105,13 @@ public class SecurityConfiguration {
     public void onLogoutSuccess(HttpServletRequest request,
                                 HttpServletResponse response,
                                 Authentication authentication) throws IOException, ServletException {
-
-
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter writer = response.getWriter();
+        String authorization = request.getHeader("Authorization");
+        if (utils.invalidateJwt(authorization)) {
+            writer.write(RestBean.success().asJsonString());
+        } else {
+            writer.write(RestBean.failure(400, "Failed to logout, please try again.").asJsonString());
+        }
     }
-
-
 }

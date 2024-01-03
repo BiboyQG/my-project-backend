@@ -7,6 +7,7 @@ import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
 import com.example.utils.FlowUtils;
+import com.example.vo.request.ConfirmResetVO;
 import com.example.vo.request.EmailRegisterVO;
 import jakarta.annotation.Resource;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -104,5 +105,22 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     private boolean existsAccountByUsername(String username) {
         return this.baseMapper.exists(Wrappers.<Account>query().eq("username", username));
+    }
+
+    @Override
+    public String resetConfirm(ConfirmResetVO vo) {
+        String email = vo.getEmail();
+        String code = stringRedisTemplate.opsForValue().get(Const.VERIFY_EMAIL_DATA + email);
+        if (code == null) return "Please get verification code first!";
+        if (!code.equals(vo.getCode())) return "Wrong verification code!";
+        if (!vo.getPassword().equals(vo.getPassword_confirm())) return "Passwords not the same!";
+        String password = passwordEncoder.encode(vo.getPassword());
+        boolean update = this.update().eq("email", email).set("password", password).update();
+        if (update) {
+            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
+        } else {
+            return "Reset failed! Please consult an admin!";
+        }
+        return null;
     }
 }

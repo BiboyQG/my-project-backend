@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.entity.RestBean;
 import com.example.service.AccountService;
+import com.example.vo.request.ConfirmResetVO;
 import com.example.vo.request.EmailRegisterVO;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,5 +37,10 @@ public class AuthorizeController {
     private RestBean<Void> messageHandler(Supplier<String> action) {
         String message = action.get();
         return message == null ? RestBean.success() : RestBean.failure(400, message);
+    }
+
+    @PostMapping("/reset")
+    public RestBean<Void> reset(@RequestBody @Valid ConfirmResetVO vo) {
+        return this.messageHandler(() -> service.resetConfirm(vo));
     }
 }

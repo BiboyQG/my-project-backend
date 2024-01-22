@@ -79,6 +79,30 @@
         </dependency>
     </dependencies>
 
+    <!-- split the dev and prod environments apart -->
+    <profiles>
+        <!-- development environment -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <environment>dev</environment>
+            </properties>
+        </profile>
+        <!-- productivity environment -->
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <environment>prod</environment>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -98,6 +122,29 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <!-- exclude all the properties files -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- first exclude all of them-->
+                <excludes>
+                    <!-- use wildcard here-->
+                    <exclude>application*.yml</exclude>
+                </excludes>
+            </resource>
+
+            <!-- package only the selected properties file -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- include the selected file -->
+                <filtering>true</filtering>
+                <includes>
+                    <include>application.yml</include>
+                    <!-- include file depending on Maven -->
+                    <include>application-${environment}.yml</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
 </project>

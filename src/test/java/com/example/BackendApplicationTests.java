@@ -8,11 +8,5 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootTest
 class BackendApplicationTests {
-    @Resource
-    StringRedisTemplate stringRedisTemplate;
-    @Test
-    void contextLoads() {
-        System.out.println(stringRedisTemplate.opsForValue().get("a"));
-    }
 
 }

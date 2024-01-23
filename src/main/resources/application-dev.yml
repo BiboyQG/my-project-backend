@@ -17,7 +17,7 @@ spring:
     virtual-host: /
   security:
     jwt:
-      key: wyb20030714
+      key: 123456
       expire: 7
   datasource:
     url: jdbc:mysql://localhost:3306/test
